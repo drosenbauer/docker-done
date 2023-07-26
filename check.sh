@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -e /tmp/done ]; then
+if [ -e '/tmp/done' ]; then
 	echo "DONE"
 else
 	echo ""
