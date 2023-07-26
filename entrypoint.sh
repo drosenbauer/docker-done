@@ -1,5 +1,17 @@
 #!/bin/bash
 
+P1=
+P2=
+DONE=0
+
+stop() {
+	DONE=1
+	kill $P1
+	kill $P2
+}
+
+trap 'stop' SIGTERM
+
 # Ports can be specified as an environment variable
 if [[ -z "${DONE_PORT}" ]]; then
 	DONE_PORT=40000
@@ -10,13 +22,18 @@ if [[ -z "${CHECK_PORT}" ]]; then
 fi
 
 echo "Listening for DONE on port ${DONE_PORT}"
-
-nc -q 0 -l "${DONE_PORT}" && /done.sh &
-
 echo "Listening for CHECK on port ${CHECK_PORT}"
 
-while true; do
-	# Note '-q 0' causes nc to exit immediately on receiving an EOF, otherwise hangs forever
-	/check.sh | nc -w 1 -q 0 -l "${CHECK_PORT}"
+socat TCP-LISTEN:"${DONE_PORT}" EXEC:"bash /done.sh" &
+P1=$!
+
+socat TCP-LISTEN:"${CHECK_PORT}" EXEC:"bash /check.sh" &
+P2=$! 
+
+echo "DONE PID: $P1"
+echo "CHECK PID: $P2"
+
+while [[ "${DONE}" == "0" ]]; do
+	read || ( echo "Terminated"; exit )
 done
 

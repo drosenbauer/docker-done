@@ -1,6 +1,6 @@
-FROM alpine:3.10
+FROM alpine:3
 
-RUN apk add --update --no-cache netcat-openbsd bash
+RUN apk add --update --no-cache socat bash
 
 COPY *.sh /
 
