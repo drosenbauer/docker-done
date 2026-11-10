@@ -2,8 +2,9 @@ FROM alpine:3
 
 RUN apk add --update --no-cache socat bash
 
-COPY *.sh /
+COPY --chmod=755 *.sh /
 
-RUN chmod +x /*.sh
+# Both ports are above 1024, so root isn't needed
+USER nobody
 
-ENTRYPOINT /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
